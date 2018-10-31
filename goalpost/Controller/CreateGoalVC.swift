@@ -42,7 +42,8 @@ class CreateGoalVC: UIViewController,UITextViewDelegate {
             guard let finishGoalVC = storyboard?.instantiateViewController(withIdentifier: "finishGoalVC") as? FinishGoalVC else {return}
             //passing the data from CreateGoalVC to another (Finish Goal VC)
             finishGoalVC.initData(description: goalTextView.text!, type: goalType)
-            presentDetail(finishGoalVC)
+            presentingViewController?.presentSecondDetails(finishGoalVC)
+            
         }
     }
     @IBAction func shortTermBtnPressed(_ sender: Any) {
