@@ -20,7 +20,6 @@ class GoalsVC: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isHidden = false
-        // Do any additional setup after loading the view, typically from a nib.
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -61,7 +60,7 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "goalCell") as? GoalCell else {return UITableViewCell()}
         let goal = goals[indexPath.row]
-        cell.configureCell(description: goal.goalDescription!, type: goal.goalType!, goalProgressAmt: Int(goal.goalProgress))
+        cell.configureCell(goal: goal)
         return cell
     }
     
@@ -80,12 +79,36 @@ extension GoalsVC: UITableViewDelegate, UITableViewDataSource{
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
         
+        let addAction = UITableViewRowAction(style: .normal, title: "ADD 1") { (rowAction, indexPath) in
+            self.setProgress(atIndexPath: indexPath)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
         deleteAction.backgroundColor = #colorLiteral(red: 0.3098039329, green: 0.01568627544, blue: 0.1294117719, alpha: 1)
-        return [deleteAction]
+        addAction.backgroundColor = #colorLiteral(red: 0.792032361, green: 0.62867558, blue: 0.2177574933, alpha: 1)
+        return [deleteAction, addAction]
     }
 }
 
 extension GoalsVC{
+    func setProgress(atIndexPath indexPath: IndexPath){
+        
+        guard let managedContext = appDelegate?.persistentContainer.viewContext else {return}
+        
+        let chosenGoal = goals[indexPath.row]
+        
+        if chosenGoal.goalProgress < chosenGoal.goalCompletionValue{
+            chosenGoal.goalProgress = chosenGoal.goalProgress + 1
+        }else{
+            return
+        }
+        
+        do{
+            try managedContext.save()
+        }catch{
+            debugPrint("could not set progress \(error.localizedDescription)")
+        }
+    }
+    
     func removeGoal(atIndexPath indexPath: IndexPath){
         guard let managedContext = appDelegate?.persistentContainer.viewContext else {return}
         
